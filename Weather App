@@ -1,0 +1,210 @@
+public class Main {
+    public static void main(String[] args) {
+        Frame frame = new Frame();
+        frame.setVisible(true);
+    }
+}
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Frame extends JFrame implements ActionListener {
+
+    private WeatherDataBase weatherDataBase = new WeatherDataBase();
+
+    private JLabel locationLabel;
+    private JLabel imageLabelWeather;
+    private JLabel degreeLabelText;
+    private JLabel weatherLabelText;
+    private JTextField searchTextField;
+
+    public Frame() {
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(500, 800);
+        setLayout(new BorderLayout());
+        setTitle("Weather App");
+
+        initComponents();
+    }
+
+    public void initComponents() {
+
+        JPanel topPanel = new JPanel();
+        topPanel.setBackground(Color.darkGray);
+        topPanel.setPreferredSize(new Dimension(0, 75));
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        add(topPanel, BorderLayout.NORTH);
+
+        JLabel titleLabel = new JLabel("Weather App");
+        titleLabel.setForeground(Color.white);
+        titleLabel.setFont(new Font("Dialog", Font.BOLD, 35));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        topPanel.add(titleLabel);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.setBackground(Color.black);
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        add(centerPanel, BorderLayout.CENTER);
+
+        locationLabel = new JLabel("Alanya");
+        locationLabel.setForeground(Color.white);
+        locationLabel.setFont(new Font("Dialog", Font.PLAIN, 35));
+        locationLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        centerPanel.add(locationLabel);
+
+        ImageIcon cloudyIcon = new ImageIcon("src/clear.png");
+        imageLabelWeather = new JLabel();
+        imageLabelWeather.setIcon(cloudyIcon);
+        imageLabelWeather.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        centerPanel.add(imageLabelWeather);
+
+        degreeLabelText = new JLabel("30 C");
+        degreeLabelText.setForeground(Color.white);
+        degreeLabelText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        degreeLabelText.setFont(new Font("Dialog", Font.PLAIN, 25));
+        centerPanel.add(degreeLabelText);
+
+        weatherLabelText = new JLabel("Sunny");
+        weatherLabelText.setForeground(Color.white);
+        weatherLabelText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        weatherLabelText.setFont(new Font("Dialog", Font.PLAIN, 30));
+        centerPanel.add(weatherLabelText);
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+        searchPanel.setBackground(Color.GREEN);
+        searchPanel.setMaximumSize(new Dimension(350, 50));
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        centerPanel.add(searchPanel);
+
+        searchTextField = new JTextField();
+        searchTextField.setFont(new Font("Dialog", Font.PLAIN, 30));
+        searchTextField.addActionListener(this);
+        searchPanel.add(searchTextField);
+
+        ImageIcon searchIcon = new ImageIcon("src/search.png");
+        JButton searchButton = new JButton();
+        searchButton.setIcon(searchIcon);
+        searchPanel.add(searchButton);
+
+    }
+    public void searchCity(String cityName){
+        WeatherInfo info = weatherDataBase.getWeatherInfo(cityName);
+
+        if (info != null){
+            locationLabel.setText(info.getCityName());
+            imageLabelWeather.setIcon(info.getWeatherIcon());
+            degreeLabelText.setText(String.valueOf(info.getTemperature()));
+            weatherLabelText.setText(info.getWeatherCondition());
+        }else {
+            System.out.println("bulunamadı");
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String cityName = searchTextField.getText().trim().toLowerCase();
+        searchCity(cityName);
+    }
+}
+
+
+import javax.swing.*;
+import java.util.HashMap;
+
+public class WeatherDataBase {
+    private HashMap<String, WeatherInfo> weatherData;
+
+    public WeatherDataBase() {
+        weatherData = new HashMap<>();
+        loadWeatherData();
+    }
+
+    private void loadWeatherData() {
+        weatherData.put("alanya", new WeatherInfo("Alanya",
+                new ImageIcon("src/clear.png"),
+                "30 C",
+                "Sunny"));
+        weatherData.put("aydın", new WeatherInfo("Aydın",
+                new ImageIcon("src/rain.png"),
+                "20 C",
+                "Rain"));
+        weatherData.put("izmir", new WeatherInfo("İzmir",
+                new ImageIcon("src/cloudy.png"),
+                "20 C",
+                "Cloudy"));
+        weatherData.put("istanbul", new WeatherInfo("İstanbul",
+                new ImageIcon("src/rain.png"),
+                "15 C",
+                "Rain"));
+        weatherData.put("ankara", new WeatherInfo("Ankara",
+                new ImageIcon("src/snow.png"),
+                "3 C",
+                "Snowy"));
+        weatherData.put("antalya", new WeatherInfo("Antalya",
+                new ImageIcon("src/clear.png"),
+                "23 C",
+                "Sunny"));
+        weatherData.put("bursa", new WeatherInfo("Bursa",
+                new ImageIcon("src/snow.png"),
+                "2 C",
+                "Snowy"));
+        weatherData.put("muğla", new WeatherInfo("Muğla",
+                new ImageIcon("src/rain.png"),
+                "13 C",
+                "Rain"));
+        weatherData.put("adana", new WeatherInfo("Adana",
+                new ImageIcon("src/clear.png"),
+                "25 C",
+                "Sunny"));
+    }
+    public WeatherInfo getWeatherInfo(String cityName){
+        return weatherData.get(cityName);
+    }
+}
+
+
+import javax.swing.*;
+
+public class WeatherInfo {
+    private String cityName;
+    private ImageIcon weatherIcon;
+    private String temperature;
+    private String weatherCondition;
+
+    public WeatherInfo(String cityName,
+                       ImageIcon weatherIcon,
+                       String temperature,
+                       String weatherCondition) {
+        this.cityName = cityName;
+        this.weatherIcon = weatherIcon;
+        this.temperature = temperature;
+        this.weatherCondition = weatherCondition;
+
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public String getWeatherCondition() {
+        return weatherCondition;
+    }
+
+    public String getTemperature() {
+        return temperature;
+    }
+
+    public ImageIcon getWeatherIcon() {
+        return weatherIcon;
+    }
+}
